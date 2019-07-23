@@ -1,12 +1,21 @@
 import React from 'react';
 import firebase from '../utils/firebase'
+import {compose} from "redux";
+import {withRouter} from "react-router";
 
 interface State {
     email: string
     pass: string
     newpass: string
 }
-class Register extends React.Component<{}, State> {
+
+interface Props {
+    history: {
+        push: (path: string, state: any) => any
+    }
+}
+
+class Register extends React.Component<Props, State> {
 
     public state: State;
 
@@ -34,12 +43,18 @@ class Register extends React.Component<{}, State> {
             firebase.auth().createUserWithEmailAndPassword(
                 this.state.email,
                 this.state.pass
-            ).then(value => console.log(value)
+            ).then(value => {
+                console.log(value)
+                this.props.history.push('/chat', {})
+            }
             ).catch(error => {
                 console.log(error)
                 if (error.code === 'auth/email-already-in-use') {
                     firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.pass)
-                        .then(value => console.log(value))
+                        .then(value => {
+                            console.log(value)
+                            this.props.history.push('/chat', {})
+                        })
                         .catch(error1 => console.log(error1))
                 }
             })
@@ -161,4 +176,4 @@ class Register extends React.Component<{}, State> {
     }
 }
 
-export default Register
+export default compose<any>(withRouter)(Register)
