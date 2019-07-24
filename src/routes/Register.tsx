@@ -1,7 +1,7 @@
 import React from 'react';
-import firebase from '../utils/firebase'
 import {compose} from "redux";
 import {withRouter} from "react-router";
+import {firebaseConnect} from "react-redux-firebase";
 
 interface State {
     email: string
@@ -12,6 +12,10 @@ interface State {
 interface Props {
     history: {
         push: (path: string, state: any) => any
+    },
+    firebase: {
+        login: any
+        createUser: any
     }
 }
 
@@ -29,9 +33,9 @@ class Register extends React.Component<Props, State> {
     }
 
     componentDidMount(): void {
-        firebase.auth().onAuthStateChanged(value => {
+        /*firebase.auth().onAuthStateChanged(value => {
             console.log(value)
-        })
+        })*/
     }
 
     handleEmailChange = (event) => this.setState({email: event.target.value});
@@ -40,7 +44,9 @@ class Register extends React.Component<Props, State> {
 
     createAccount = () => {
         if (this.state.newpass === this.state.pass) {
-            firebase.auth().createUserWithEmailAndPassword(
+            this.props.firebase.createUser({email: this.state.email, password: this.state.newpass, signIn: true}, {username: this.state.email})
+                .then(value => console.log(value))
+            /*firebase.auth().createUserWithEmailAndPassword(
                 this.state.email,
                 this.state.pass
             ).then(value => {
@@ -57,19 +63,20 @@ class Register extends React.Component<Props, State> {
                         })
                         .catch(error1 => console.log(error1))
                 }
-            })
+            })*/
         }
     }
 
     logout = () => {
-        firebase.auth().onAuthStateChanged(value => {
+        /*firebase.auth().onAuthStateChanged(value => {
             if (value) {
                 firebase.auth().signOut()
             }
-        })
+        })*/
     }
 
     render(): React.ReactElement<any, string | React.JSXElementConstructor<any>> | string | number | {} | React.ReactNodeArray | React.ReactPortal | boolean | null | undefined {
+        console.log(this.props)
         return (
             <React.Fragment>
                 <div id="main" className="animated fadeIn">
@@ -176,4 +183,7 @@ class Register extends React.Component<Props, State> {
     }
 }
 
-export default compose<any>(withRouter)(Register)
+export default compose<any>(
+    withRouter,
+    firebaseConnect()
+)(Register)

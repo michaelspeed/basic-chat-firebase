@@ -1,14 +1,20 @@
 import React from "react";
-import firebase from '../utils/firebase'
 import * as fr from 'firebase'
 import * as moment from "moment";
+import {compose} from "redux";
+import {firestoreConnect, isLoaded} from "react-redux-firebase";
+import {connect} from 'react-redux'
 
 interface State {
     message: string
     allMessages: any[]
 }
 
-class Chat extends React.Component<{}, State> {
+interface Props {
+    messages: any[]
+}
+
+class Chat extends React.Component<Props, State> {
 
     public state: State;
     messageRef: any;
@@ -20,30 +26,16 @@ class Chat extends React.Component<{}, State> {
             message: '',
             allMessages: []
         }
-        this.messageRef = firebase.firestore().collection('messages')
     }
 
     componentDidMount(): void {
-        this.messageSub = this.messageRef.onSnapshot(this.onMessageRead)
     }
 
     componentWillUnmount(): void {
-        this.messageSub()
-    }
-
-    onMessageRead = (querySnapshot) => {
-        const allMes: any[] = []
-        querySnapshot.forEach(doc => {
-            allMes.push(doc.data())
-        })
-        console.log(allMes)
-        this.setState({
-            allMessages: allMes
-        })
     }
 
     createMessage = () => {
-        if (this.state.message !== '') {
+        /*if (this.state.message !== '') {
             firebase.auth().onAuthStateChanged(user => {
                 if (user) {
                     const db = firebase.firestore();
@@ -59,11 +51,12 @@ class Chat extends React.Component<{}, State> {
                     })
                 }
             })
-        }
+        }*/
     };
 
 
     render() {
+        console.log(this.props)
         return (
             <React.Fragment>
                 <div style={{padding: 30, display: 'flex', flexDirection: "row", justifyContent: "space-around", alignItems: "center"}}>
@@ -73,8 +66,8 @@ class Chat extends React.Component<{}, State> {
                     ></textarea>
                     <button className="btn btn-bordered btn-primary" onClick={this.createMessage}>Send</button>
                 </div>
-                <div>
-                    {this.state.allMessages.map((item, index) => {
+                {isLoaded(this.props.messages) && <div>
+                    {this.props.messages.map((item, index) => {
                         return (
                             <div style={{backgroundColor: 'white', padding: 20}} key={index}>
                                 <div>
@@ -89,10 +82,15 @@ class Chat extends React.Component<{}, State> {
                             </div>
                         )
                     })}
-                </div>
+                </div>}
             </React.Fragment>
         )
     }
 }
 
-export default Chat
+export default compose<any>(
+    firestoreConnect(['messages']),
+    connect((state) => ({
+        messages: state.firestore.ordered.messages
+    }))
+)(Chat)
