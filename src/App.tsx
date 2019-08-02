@@ -6,6 +6,7 @@ import Chat from "./routes/chat";
 import { Provider } from 'react-redux'
 import store, {rrfProps} from "./store/store";
 import {ReactReduxFirebaseProvider} from 'react-redux-firebase';
+import FileUpload from "./routes/FileUpload";
 
 const App: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const App: React.FC = () => {
                 <BrowserRouter>
                     <Route path={'/'} render={() => (<Register/>)} exact={true}/>
                     <Route path={'/chat'} render={() => (<Chat/>)} exact={true}/>
+                    <Route path={'/file'} render={() => (<FileUpload/>)} exact={true}/>
                 </BrowserRouter>
             </div>
         </ReactReduxFirebaseProvider>
